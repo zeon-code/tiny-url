@@ -21,7 +21,7 @@ func TestUrlHandler(t *testing.T) {
 	t.Run("create url", func(t *testing.T) {
 		var payload handler.UrlCreateResponse
 		fake := test.NewFakeDependencies()
-		router := handler.NewRouter(fake.Services(), fake.Logger())
+		router := handler.NewRouter(fake.Services(), fake.HTTPMetric, fake.Logger())
 
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodPost, "/api/v1/url/", bytes.NewBufferString(`{"target":"target"}`))
@@ -35,12 +35,17 @@ func TestUrlHandler(t *testing.T) {
 
 		assert.Equal(t, http.StatusCreated, rec.Code)
 		assert.Equal(t, handler.UrlCreateResponse{ID: 1, Code: "1", Target: "target"}, payload)
+
+		assert.Equal(t, "/api/v1/url/", fake.HTTPMetric.LastHTTPRequestPath)
+		assert.NotNil(t, fake.HTTPMetric.LastHTTPRequestDuration)
+		assert.Equal(t, http.MethodPost, fake.HTTPMetric.LastHTTPRequestMethod)
+		assert.Equal(t, http.StatusCreated, fake.HTTPMetric.LastHTTPRequestStatusCode)
 	})
 
 	t.Run("list urls", func(t *testing.T) {
 		var payload pagination.Pagination[model.URL]
 		fake := test.NewFakeDependencies()
-		router := handler.NewRouter(fake.Services(), fake.Logger())
+		router := handler.NewRouter(fake.Services(), fake.HTTPMetric, fake.Logger())
 
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, "/api/v1/url/", nil)
@@ -65,12 +70,17 @@ func TestUrlHandler(t *testing.T) {
 				Size: 5,
 			},
 		}, payload)
+
+		assert.Equal(t, "/api/v1/url/", fake.HTTPMetric.LastHTTPRequestPath)
+		assert.NotNil(t, fake.HTTPMetric.LastHTTPRequestDuration)
+		assert.Equal(t, http.MethodGet, fake.HTTPMetric.LastHTTPRequestMethod)
+		assert.Equal(t, http.StatusOK, fake.HTTPMetric.LastHTTPRequestStatusCode)
 	})
 
 	t.Run("list urls with cursor", func(t *testing.T) {
 		var payload pagination.Pagination[model.URL]
 		fake := test.NewFakeDependencies()
-		router := handler.NewRouter(fake.Services(), fake.Logger())
+		router := handler.NewRouter(fake.Services(), fake.HTTPMetric, fake.Logger())
 
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, "/api/v1/url/", nil)
@@ -100,12 +110,17 @@ func TestUrlHandler(t *testing.T) {
 				Size:     5,
 			},
 		}, payload)
+
+		assert.Equal(t, "/api/v1/url/", fake.HTTPMetric.LastHTTPRequestPath)
+		assert.NotNil(t, fake.HTTPMetric.LastHTTPRequestDuration)
+		assert.Equal(t, http.MethodGet, fake.HTTPMetric.LastHTTPRequestMethod)
+		assert.Equal(t, http.StatusOK, fake.HTTPMetric.LastHTTPRequestStatusCode)
 	})
 
 	t.Run("url get by id", func(t *testing.T) {
 		var payload model.URL
 		fake := test.NewFakeDependencies()
-		router := handler.NewRouter(fake.Services(), fake.Logger())
+		router := handler.NewRouter(fake.Services(), fake.HTTPMetric, fake.Logger())
 
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, "/api/v1/url/1", nil)
@@ -121,6 +136,11 @@ func TestUrlHandler(t *testing.T) {
 
 		at, _ := time.Parse(time.RFC3339, "2026-01-29T15:23:24Z")
 		assert.Equal(t, model.URL{ID: 1, Code: "1", Target: "target1", CreatedAt: &at, UpdatedAt: &at}, payload)
+
+		assert.Equal(t, "/api/v1/url/1", fake.HTTPMetric.LastHTTPRequestPath)
+		assert.NotNil(t, fake.HTTPMetric.LastHTTPRequestDuration)
+		assert.Equal(t, http.MethodGet, fake.HTTPMetric.LastHTTPRequestMethod)
+		assert.Equal(t, http.StatusOK, fake.HTTPMetric.LastHTTPRequestStatusCode)
 	})
 
 }

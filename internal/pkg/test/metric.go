@@ -20,9 +20,20 @@ type FakeMetric struct {
 	LastDuration   time.Duration
 	LastDBErr      string
 	LastDBQueryErr string
+
+	//HTTP
+	LastHTTPRequestPath       string
+	LastHTTPRequestMethod     string
+	LastHTTPRequestStatusCode int
+	LastHTTPRequestDuration   time.Duration
 }
 
-func (m *FakeMetric) HTTPRequest(string, string, string, time.Duration) {}
+func (m *FakeMetric) HTTPRequest(method string, path string, statusCode int, duration time.Duration) {
+	m.LastHTTPRequestMethod = method
+	m.LastHTTPRequestPath = path
+	m.LastHTTPRequestStatusCode = statusCode
+	m.LastHTTPRequestDuration = duration
+}
 
 func (m *FakeMetric) CacheHit(string) {
 	m.LastCacheHit = true

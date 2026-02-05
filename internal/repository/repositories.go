@@ -23,28 +23,26 @@ type Repositories struct {
 // cannot be created, as the application cannot operate without them.
 //
 // Returns a fully initialized Repositories instance
-func NewRepositoriesFromConfig(c config.Configuration, logger *slog.Logger) Repositories {
-	metric := metric.NewMetricClient(c, logger.With("client", "metric"))
-
-	cache, err := db.NewCacheClient(c.Cache(), metric, logger.With("client", "cache"))
+func NewRepositoriesFromConfig(conf config.Configuration, metrics metric.MetricClient, logger *slog.Logger) Repositories {
+	cache, err := db.NewCacheClient(conf.Cache(), metrics, logger.With("client", "cache"))
 
 	if err != nil {
 		panic("error building cache client: " + err.Error())
 	}
 
-	database, err := db.NewDBClient(c.PrimaryDatabase(), metric, logger.With("client", "primary-db"))
+	database, err := db.NewDBClient(conf.PrimaryDatabase(), metrics, logger.With("client", "primary-db"))
 
 	if err != nil {
 		panic("error building primary database client: " + err.Error())
 	}
 
-	replica, err := db.NewDBClient(c.ReplicaDatabase(), metric, logger.With("client", "replica-db"))
+	replica, err := db.NewDBClient(conf.ReplicaDatabase(), metrics, logger.With("client", "replica-db"))
 
 	if err != nil {
 		replica = database
 	}
 
-	memory := db.NewMemoryDatabase(replica, cache, metric, logger.With("client", "memory"))
+	memory := db.NewMemoryDatabase(replica, cache, metrics, logger.With("client", "memory"))
 	return NewRepositories(database, memory, logger)
 }
 

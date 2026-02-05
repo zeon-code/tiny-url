@@ -14,7 +14,7 @@ type MetricClient interface {
 	// HTTPRequest records the completion of an HTTP request.
 	// It should be called once per request, after the response
 	// status is known, and must include request duration.
-	HTTPRequest(string, string, string, time.Duration)
+	HTTPRequest(string, string, int, time.Duration)
 
 	// CacheHit records a successful cache lookup where the
 	// requested value was found and used.

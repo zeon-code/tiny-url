@@ -3,10 +3,12 @@ package test
 import (
 	"database/sql"
 	"log/slog"
+	"net/http"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
 	"github.com/zeon-code/tiny-url/internal/db"
+	"github.com/zeon-code/tiny-url/internal/http/handler"
 	"github.com/zeon-code/tiny-url/internal/repository"
 	"github.com/zeon-code/tiny-url/internal/service"
 )
@@ -23,6 +25,9 @@ type FakeDependencies struct {
 
 	// Memory
 	MemoryMetric *FakeMetric
+
+	// HTTP
+	HTTPMetric *FakeMetric
 }
 
 func NewFakeDependencies() FakeDependencies {
@@ -32,6 +37,7 @@ func NewFakeDependencies() FakeDependencies {
 		DBMetric:     NewFakeMetric(),
 		CacheMetric:  NewFakeMetric(),
 		MemoryMetric: NewFakeMetric(),
+		HTTPMetric:   NewFakeMetric(),
 		CacheBackend: NewFakeRedisBackend(),
 	}
 
@@ -63,4 +69,8 @@ func (d FakeDependencies) Repositories() repository.Repositories {
 
 func (d FakeDependencies) Services() service.Services {
 	return service.NewServices(d.Repositories(), d.Logger())
+}
+
+func (d FakeDependencies) Router() http.Handler {
+	return handler.NewRouter(d.Services(), d.HTTPMetric, d.Logger())
 }
