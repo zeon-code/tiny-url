@@ -1,15 +1,24 @@
 package metric
 
-import "time"
+import (
+	"log/slog"
+	"time"
 
-type NoopMetrics struct{}
+	"github.com/zeon-code/tiny-url/internal/pkg/config"
+)
 
-func (NoopMetrics) HTTPRequest(string, string, int, time.Duration) {}
-func (NoopMetrics) CacheHit(string)                                {}
-func (NoopMetrics) CacheMiss(string)                               {}
-func (NoopMetrics) CacheInvalid(string)                            {}
-func (NoopMetrics) CacheError(string, string)                      {}
-func (NoopMetrics) CacheLatency(string, time.Duration)             {}
-func (NoopMetrics) CacheBypassed()                                 {}
-func (NoopMetrics) DBQuery(string, time.Duration)                  {}
-func (NoopMetrics) DBError(string, string)                         {}
+type NoopClient struct{}
+
+func (NoopClient) HTTPRequest(string, string, int, time.Duration) {}
+func (NoopClient) CacheHit(string)                                {}
+func (NoopClient) CacheMiss(string)                               {}
+func (NoopClient) CacheInvalid(string)                            {}
+func (NoopClient) CacheError(string, string)                      {}
+func (NoopClient) CacheLatency(string, time.Duration)             {}
+func (NoopClient) CacheBypassed()                                 {}
+func (NoopClient) DBQuery(string, time.Duration)                  {}
+func (NoopClient) DBError(string, string)                         {}
+
+func NewNoopClient(conf config.MetricConfiguration, logger *slog.Logger) NoopClient {
+	return NoopClient{}
+}

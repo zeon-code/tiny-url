@@ -23,6 +23,9 @@ type FakeDependencies struct {
 	CacheBackend *FakeRedis
 	CacheMetric  *FakeMetric
 
+	// Metric
+	MetricBackend *FakeDatadog
+
 	// Memory
 	MemoryMetric *FakeMetric
 
@@ -34,11 +37,12 @@ func NewFakeDependencies() FakeDependencies {
 	var sqldb *sql.DB
 
 	fake := FakeDependencies{
-		DBMetric:     NewFakeMetric(),
-		CacheMetric:  NewFakeMetric(),
-		MemoryMetric: NewFakeMetric(),
-		HTTPMetric:   NewFakeMetric(),
-		CacheBackend: NewFakeRedisBackend(),
+		DBMetric:      NewFakeMetric(),
+		CacheMetric:   NewFakeMetric(),
+		MemoryMetric:  NewFakeMetric(),
+		HTTPMetric:    NewFakeMetric(),
+		CacheBackend:  NewFakeRedisBackend(),
+		MetricBackend: NewFakeDatadog(),
 	}
 
 	sqldb, fake.DBMock, _ = sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))

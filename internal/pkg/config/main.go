@@ -5,6 +5,7 @@ type Configuration interface {
 	Cache() DatabaseConfiguration
 	PrimaryDatabase() DatabaseConfiguration
 	ReplicaDatabase() DatabaseConfiguration
+	Metric() MetricConfiguration
 }
 
 type AppConfiguration struct{}
@@ -23,6 +24,10 @@ func (c AppConfiguration) PrimaryDatabase() DatabaseConfiguration {
 
 func (c AppConfiguration) ReplicaDatabase() DatabaseConfiguration {
 	return NewPostgresConfig("DB_REPLICA")
+}
+
+func (c AppConfiguration) Metric() MetricConfiguration {
+	return NewDatadogConfiguration()
 }
 
 func (c AppConfiguration) Log() Log {

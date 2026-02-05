@@ -2,6 +2,7 @@ package metric
 
 import (
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/zeon-code/tiny-url/internal/pkg/config"
@@ -49,6 +50,20 @@ type MetricClient interface {
 	DBError(string, string)
 }
 
-func NewMetricClient(c config.Configuration, l *slog.Logger) MetricClient {
-	return NoopMetrics{}
+func NewMetricClient(conf config.Configuration, logger *slog.Logger) MetricClient {
+	integration, _ := conf.Metric().Integration()
+
+	switch strings.ToLower(integration) {
+	case "datadog":
+		client, err := NewDatadogClientFromConf(conf.Metric(), logger)
+
+		if err != nil {
+			logger.Error("error building datadog client, returning fallback NoopClient", slog.Any("error", err))
+			return NewNoopClient(conf.Metric(), logger)
+		}
+
+		return client
+	default:
+		return NewNoopClient(conf.Metric(), logger)
+	}
 }
