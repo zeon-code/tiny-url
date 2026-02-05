@@ -18,7 +18,7 @@ dev:
 	@go run cmd/api/main.go
 
 test:
-	@go test ./...
+	@go test -coverprofile=coverage.out ./...
 
 api-create-urls:
 	@echo "Usage example, make api-create-urls"
