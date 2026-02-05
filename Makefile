@@ -12,6 +12,9 @@ export CACHE_HOST ?= localhost
 export CACHE_PORT ?= 6379
 export CACHE_PASSWORD ?=
 
+# App
+export APP_BINARY_PATH ?= /tmp/tiny-url
+
 .PHONY: new-migration
 
 dev:
@@ -19,6 +22,13 @@ dev:
 
 test:
 	@go test -coverprofile=coverage.out ./...
+
+build:
+	@go build -v -o $(APP_BINARY_PATH) cmd/api/main.go
+	@chmod -X $(APP_BINARY_PATH)
+
+run: build
+	@$(APP_BINARY_PATH)
 
 api-create-urls:
 	@echo "Usage example, make api-create-urls"
