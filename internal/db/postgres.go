@@ -20,6 +20,19 @@ type PostgresBackend interface {
 	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
 }
 
+type PostgresTxBackend interface {
+	PostgresBackend
+
+	Commit() error
+	Rollback() error
+}
+
+type PostgresClientBackend interface {
+	PostgresBackend
+
+	BeginTxx(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error)
+}
+
 // PostgresProxy provides a thin abstraction over sqlx.DB,
 // centralizing database access and normalizing error handling.
 // It delegates query execution to the underlying sqlx backend
@@ -83,20 +96,24 @@ type PostgresClient struct {
 	PostgresProxy
 }
 
-func newPostgresClient(c config.DatabaseConfiguration, m metric.MetricClient, l *slog.Logger) (*PostgresClient, error) {
+func newPostgresClient(c config.DatabaseConfiguration, m metric.MetricClient, l *slog.Logger) (SQLClient, error) {
 	backend, err := sqlx.Connect(c.GetDriver(), c.GetDNS())
 
 	if err != nil {
 		return nil, mapDBError(err)
 	}
 
+	return NewPostgresClient(backend, m, l), nil
+}
+
+func NewPostgresClient(b PostgresClientBackend, m metric.MetricClient, l *slog.Logger) *PostgresClient {
 	return &PostgresClient{
 		PostgresProxy: PostgresProxy{
-			backend: backend,
+			backend: b,
 			metric:  m,
 			logger:  l,
 		},
-	}, nil
+	}
 }
 
 // BeginTx begins a new SQL transaction with the given context and options.
@@ -107,6 +124,7 @@ func (p PostgresClient) BeginTx(ctx context.Context, opt *sql.TxOptions) (SQLTX,
 	backend, ok := p.backend.(*sqlx.DB)
 
 	if !ok {
+		p.track("START TRANSACTION;", startAt, ErrDBInvalidBackend)
 		return nil, ErrDBInvalidBackend
 	}
 
@@ -124,7 +142,7 @@ type PostgresTX struct {
 	PostgresProxy
 }
 
-func newPostgresTx(tx *sqlx.Tx, m metric.MetricClient) *PostgresTX {
+func newPostgresTx(tx PostgresTxBackend, m metric.MetricClient) SQLTX {
 	return &PostgresTX{
 		PostgresProxy: PostgresProxy{
 			backend: tx,
@@ -137,9 +155,10 @@ func newPostgresTx(tx *sqlx.Tx, m metric.MetricClient) *PostgresTX {
 // Once committed, the transaction is closed and further operations will fail.
 func (p PostgresTX) Commit() error {
 	startAt := time.Now()
-	backend, ok := p.backend.(*sqlx.Tx)
+	backend, ok := p.backend.(PostgresTxBackend)
 
 	if !ok {
+		p.track("COMMIT TRANSACTION;", startAt, ErrDBInvalidBackend)
 		return ErrDBInvalidBackend
 	}
 
@@ -152,9 +171,10 @@ func (p PostgresTX) Commit() error {
 // Calling Rollback after Commit has no effect.
 func (p PostgresTX) Rollback() error {
 	startAt := time.Now()
-	backend, ok := p.backend.(*sqlx.Tx)
+	backend, ok := p.backend.(PostgresTxBackend)
 
 	if !ok {
+		p.track("ROLLBACK;", startAt, ErrDBInvalidBackend)
 		return ErrDBInvalidBackend
 	}
 

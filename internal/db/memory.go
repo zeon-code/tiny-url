@@ -28,12 +28,12 @@ type MemoryDatabaseClient struct {
 	logger *slog.Logger
 }
 
-func NewMemoryDatabase(db SQLClient, cache CacheClient, metric metric.MetricClient, l *slog.Logger) SQLReader {
+func NewMemoryDatabase(db SQLClient, cache CacheClient, metric metric.MetricClient, logger *slog.Logger) SQLReader {
 	return MemoryDatabaseClient{
 		db:     db,
 		cache:  cache,
 		metric: metric,
-		logger: l,
+		logger: logger,
 	}
 }
 

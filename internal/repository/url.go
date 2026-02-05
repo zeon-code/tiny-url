@@ -22,11 +22,11 @@ type URLStore struct {
 	logger *slog.Logger
 }
 
-func NewURLRepository(database db.SQLClient, memory db.SQLReader, l *slog.Logger) URLRepository {
+func NewURLRepository(database db.SQLClient, memory db.SQLReader, logger *slog.Logger) URLRepository {
 	return URLStore{
 		db:     database,
 		memory: memory,
-		logger: l,
+		logger: logger,
 	}
 }
 

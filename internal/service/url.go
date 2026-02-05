@@ -22,11 +22,11 @@ type UrlSvc struct {
 	logger   *slog.Logger
 }
 
-func NewUrlService(repositories repository.Repositories, l *slog.Logger) URLService {
+func NewUrlService(repositories repository.Repositories, logger *slog.Logger) URLService {
 	return UrlSvc{
 		repo:     repositories.Url,
 		cacheKey: cache.NewCacheKey("url", "service"),
-		logger:   l,
+		logger:   logger,
 	}
 }
 

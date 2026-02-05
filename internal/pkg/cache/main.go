@@ -24,11 +24,12 @@ func WithCache(ctx context.Context) context.Context {
 }
 
 func WithCachePolicy(ctx context.Context, policy CachePolicy) context.Context {
-	cache := ctx.Value(cacheKey{}).(Cache)
+	cache, _ := ctx.Value(cacheKey{}).(Cache)
 	cache.Policy = policy
 	return context.WithValue(ctx, cacheKey{}, cache)
 }
 
 func CacheFromContext(ctx context.Context) Cache {
-	return ctx.Value(cacheKey{}).(Cache)
+	cache, _ := ctx.Value(cacheKey{}).(Cache)
+	return cache
 }

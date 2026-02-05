@@ -10,24 +10,35 @@ import (
 	"github.com/zeon-code/tiny-url/internal/pkg/metric"
 )
 
-// CacheProxy provides a thin abstraction over redis.Client,
+type RedisBackend interface {
+	Get(ctx context.Context, key string) *redis.StringCmd
+	Del(ctx context.Context, keys ...string) *redis.IntCmd
+	Incr(ctx context.Context, key string) *redis.IntCmd
+	SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.BoolCmd
+}
+
+// RedisClient provides a thin abstraction over redis.Client,
 // centralizing cache operations and normalizing cache-related
 // error handling. It delegates commands to the underlying Redis
 // backend while mapping low-level errors to domain-level errors.
-type RedisProxy struct {
-	backend *redis.Client
+type RedisClient struct {
+	backend RedisBackend
 	metric  metric.MetricClient
 	logger  *slog.Logger
 }
 
-func newRedisClient(c config.DatabaseConfiguration, m metric.MetricClient, l *slog.Logger) (*RedisProxy, error) {
+func newRedisClient(c config.DatabaseConfiguration, m metric.MetricClient, l *slog.Logger) (*RedisClient, error) {
 	opt, err := redis.ParseURL(c.GetDNS())
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &RedisProxy{backend: redis.NewClient(opt), metric: m}, err
+	return &RedisClient{backend: redis.NewClient(opt), metric: m, logger: l}, err
+}
+
+func NewRedisClient(b RedisBackend, m metric.MetricClient, l *slog.Logger) *RedisClient {
+	return &RedisClient{backend: b, metric: m, logger: l}
 }
 
 // Get retrieves the cached value associated with the given key.
@@ -35,7 +46,7 @@ func newRedisClient(c config.DatabaseConfiguration, m metric.MetricClient, l *sl
 // does not exist returns error.
 //
 // Returns a mapped cache error for consistent error handling.
-func (p RedisProxy) Get(ctx context.Context, key string) ([]byte, error) {
+func (p RedisClient) Get(ctx context.Context, key string) ([]byte, error) {
 	data, err := p.backend.Get(ctx, key).Bytes()
 
 	if err == redis.Nil {
@@ -55,7 +66,7 @@ func (p RedisProxy) Get(ctx context.Context, key string) ([]byte, error) {
 // strategy to avoid overwriting existing entries.
 //
 // Returns a mapped cache error for consistent error handling.
-func (p RedisProxy) Set(ctx context.Context, value any, key string, ttl time.Duration) error {
+func (p RedisClient) Set(ctx context.Context, value any, key string, ttl time.Duration) error {
 	err := p.backend.SetNX(ctx, key, value, ttl).Err()
 
 	if err != nil {
@@ -71,7 +82,7 @@ func (p RedisProxy) Set(ctx context.Context, value any, key string, ttl time.Dur
 // strategy to avoid overwriting existing entries.
 //
 // Returns a mapped cache error for consistent error handling.
-func (p RedisProxy) Del(ctx context.Context, key string) error {
+func (p RedisClient) Del(ctx context.Context, key string) error {
 	err := p.backend.Del(ctx, key).Err()
 
 	if err != nil {
@@ -87,7 +98,7 @@ func (p RedisProxy) Del(ctx context.Context, key string) error {
 // initialized before being incremented.
 //
 // Returns a mapped cache error for consistent error handling.
-func (p RedisProxy) Incr(ctx context.Context, key string) (int64, error) {
+func (p RedisClient) Incr(ctx context.Context, key string) (int64, error) {
 	current, err := p.backend.Incr(ctx, key).Result()
 
 	if err != nil {

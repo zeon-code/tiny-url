@@ -1,16 +1,15 @@
-package http
+package handler
 
 import (
 	"log/slog"
 	"net/http"
 
-	"github.com/zeon-code/tiny-url/internal/http/handler"
 	"github.com/zeon-code/tiny-url/internal/service"
 )
 
-func NewRouter(svc service.Services, l *slog.Logger) *http.ServeMux {
+func NewRouter(svc service.Services, logger *slog.Logger) *http.ServeMux {
 	mux := http.NewServeMux()
-	url := handler.NewUrlHandler(svc, l.With("handler", "url"))
+	url := NewUrlHandler(svc, logger.With("handler", "url"))
 
 	mux.HandleFunc("GET /api/v1/url/", url.List)
 	mux.HandleFunc("POST /api/v1/url/", url.Create)

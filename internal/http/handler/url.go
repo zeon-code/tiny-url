@@ -9,6 +9,7 @@ import (
 
 	"github.com/zeon-code/tiny-url/internal/model"
 	"github.com/zeon-code/tiny-url/internal/pkg/cache"
+	"github.com/zeon-code/tiny-url/internal/pkg/pagination"
 	"github.com/zeon-code/tiny-url/internal/service"
 )
 
@@ -17,16 +18,16 @@ type UrlHandler struct {
 	logger *slog.Logger
 }
 
-func NewUrlHandler(services service.Services, l *slog.Logger) UrlHandler {
+func NewUrlHandler(services service.Services, logger *slog.Logger) UrlHandler {
 	return UrlHandler{
 		UrlSvc: services.Url,
-		logger: l,
+		logger: logger,
 	}
 }
 
 type UrlListResponse struct {
-	Urls []model.URL `json:"items"`
-	Page Page        `json:"page"`
+	Urls []model.URL     `json:"items"`
+	Page pagination.Page `json:"page"`
 }
 
 type UrlCreateRequest struct {
@@ -78,7 +79,7 @@ func (h UrlHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 	w.Write(data)
 }
 
@@ -91,7 +92,7 @@ func (h UrlHandler) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	direction, cursor := GetCursor(r)
+	direction, cursor := pagination.GetCursor(r)
 	urls, err := h.UrlSvc.List(cache.WithCache(ctx), limit, direction, cursor)
 
 	if err != nil {
@@ -100,7 +101,7 @@ func (h UrlHandler) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cursorKey := func(u model.URL) int64 { return u.ID }
-	data, err := NewPagination(urls, limit, cursor).Encode(cursorKey)
+	data, err := pagination.NewPagination(urls, limit, cursor).Encode(cursorKey)
 
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

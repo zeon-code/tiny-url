@@ -17,6 +17,9 @@ export CACHE_PASSWORD ?=
 dev:
 	@go run cmd/api/main.go
 
+test:
+	@go test ./...
+
 api-create-urls:
 	@echo "Usage example, make api-create-urls"
 	@curl -X POST "localhost:8080/api/v1/url/" --json '{"target":"https://google.com"}'

@@ -1,6 +1,8 @@
 package db
 
 import (
+	"context"
+	"database/sql"
 	"errors"
 
 	"github.com/redis/go-redis/v9"
@@ -8,9 +10,19 @@ import (
 
 var (
 	ErrDBInvalidBackend = errors.New("error db invalid backend instance")
+	ErrDBNotFound       = errors.New("error db resource not found")
 )
 
 func mapDBError(err error) error {
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
+		return ErrDBNotFound
+	case errors.Is(err, context.Canceled):
+		return err
+	case errors.Is(err, context.DeadlineExceeded):
+		return err
+	}
+
 	return err
 }
 
@@ -23,6 +35,10 @@ func mapCacheError(err error) error {
 	switch {
 	case errors.Is(err, redis.Nil):
 		return ErrCacheNotFound
+	case errors.Is(err, context.Canceled):
+		return err
+	case errors.Is(err, context.DeadlineExceeded):
+		return err
 	}
 
 	return ErrCacheUnavailable
