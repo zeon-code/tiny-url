@@ -1,16 +1,6 @@
-# Database
-export DB_NAME ?= tiny_url
-export DB_HOST ?= localhost
-export DB_USER ?= tiny_url
-export DB_PASSWORD ?= postgres
-export DB_PORT ?= 5432
-export DB_TLS_MODE ?= false
-
-# Cache
-export CACHE_NAME ?= 0
-export CACHE_HOST ?= localhost
-export CACHE_PORT ?= 6379
-export CACHE_PASSWORD ?=
+# Load variables from .envs/local.env
+include .envs/local.env
+export $(shell sed 's/=.*//' .envs/local.env)
 
 # App
 export APP_BINARY_PATH ?= /tmp/tiny-url

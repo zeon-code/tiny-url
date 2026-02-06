@@ -18,13 +18,13 @@ func TestDatadogClient(t *testing.T) {
 		metrics.HTTPRequest("GET", "/api/v1/url", 200, time.Since(time.Now()))
 
 		assert.Equal(t, float64(1), fake.MetricBackend.LastIncrRate)
-		assert.Equal(t, "tiny_url.http.request.count", fake.MetricBackend.LastIncrName)
-		assert.Equal(t, []string{"tiny_url", "env:test", "method:GET", "route:/api/v1/url", "status:200"}, fake.MetricBackend.LastIncrTags)
+		assert.Equal(t, "http.request.count", fake.MetricBackend.LastIncrName)
+		assert.Equal(t, []string{"method:GET", "route:/api/v1/url", "status:200"}, fake.MetricBackend.LastIncrTags)
 
 		assert.Equal(t, float64(1), fake.MetricBackend.LastTimingRate)
 		assert.NotNil(t, fake.MetricBackend.LastTimingDuration)
-		assert.Equal(t, "tiny_url.http.request.duration", fake.MetricBackend.LastTimingName)
-		assert.Equal(t, []string{"tiny_url", "env:test", "method:GET", "route:/api/v1/url", "status:200"}, fake.MetricBackend.LastTimingTags)
+		assert.Equal(t, "http.request.latency", fake.MetricBackend.LastTimingName)
+		assert.Equal(t, []string{"method:GET", "route:/api/v1/url", "status:200"}, fake.MetricBackend.LastTimingTags)
 	})
 
 	t.Run("should send http metrics with err", func(t *testing.T) {
@@ -42,8 +42,8 @@ func TestDatadogClient(t *testing.T) {
 		metrics.CacheHit("key")
 
 		assert.Equal(t, float64(1), fake.MetricBackend.LastIncrRate)
-		assert.Equal(t, "tiny_url.cache.hit", fake.MetricBackend.LastIncrName)
-		assert.Equal(t, []string{"tiny_url", "env:test", "key:key"}, fake.MetricBackend.LastIncrTags)
+		assert.Equal(t, "cache.hit", fake.MetricBackend.LastIncrName)
+		assert.Equal(t, []string{"key:key"}, fake.MetricBackend.LastIncrTags)
 	})
 
 	t.Run("should send cache hit metric with err", func(t *testing.T) {
@@ -61,8 +61,8 @@ func TestDatadogClient(t *testing.T) {
 		metrics.CacheMiss("key")
 
 		assert.Equal(t, float64(1), fake.MetricBackend.LastIncrRate)
-		assert.Equal(t, "tiny_url.cache.miss", fake.MetricBackend.LastIncrName)
-		assert.Equal(t, []string{"tiny_url", "env:test", "key:key"}, fake.MetricBackend.LastIncrTags)
+		assert.Equal(t, "cache.miss", fake.MetricBackend.LastIncrName)
+		assert.Equal(t, []string{"key:key"}, fake.MetricBackend.LastIncrTags)
 	})
 
 	t.Run("should send cache miss metric with err", func(t *testing.T) {
@@ -80,8 +80,8 @@ func TestDatadogClient(t *testing.T) {
 		metrics.CacheInvalid("key")
 
 		assert.Equal(t, float64(1), fake.MetricBackend.LastIncrRate)
-		assert.Equal(t, "tiny_url.cache.invalid", fake.MetricBackend.LastIncrName)
-		assert.Equal(t, []string{"tiny_url", "env:test", "key:key"}, fake.MetricBackend.LastIncrTags)
+		assert.Equal(t, "cache.invalid", fake.MetricBackend.LastIncrName)
+		assert.Equal(t, []string{"key:key"}, fake.MetricBackend.LastIncrTags)
 	})
 
 	t.Run("should send cache invalid metric with err", func(t *testing.T) {
@@ -100,8 +100,8 @@ func TestDatadogClient(t *testing.T) {
 		metrics.CacheError("key", err.Error())
 
 		assert.Equal(t, float64(1), fake.MetricBackend.LastIncrRate)
-		assert.Equal(t, "tiny_url.cache.error", fake.MetricBackend.LastIncrName)
-		assert.Equal(t, []string{"tiny_url", "env:test", "key:key", "error:" + err.Error()}, fake.MetricBackend.LastIncrTags)
+		assert.Equal(t, "cache.error", fake.MetricBackend.LastIncrName)
+		assert.Equal(t, []string{"key:key", "error:" + err.Error()}, fake.MetricBackend.LastIncrTags)
 	})
 
 	t.Run("should send cache error metric with err", func(t *testing.T) {
@@ -121,8 +121,8 @@ func TestDatadogClient(t *testing.T) {
 
 		assert.Equal(t, float64(1), fake.MetricBackend.LastTimingRate)
 		assert.NotNil(t, fake.MetricBackend.LastTimingDuration)
-		assert.Equal(t, "tiny_url.cache.latency", fake.MetricBackend.LastTimingName)
-		assert.Equal(t, []string{"tiny_url", "env:test", "key:key"}, fake.MetricBackend.LastTimingTags)
+		assert.Equal(t, "cache.latency", fake.MetricBackend.LastTimingName)
+		assert.Equal(t, []string{"key:key"}, fake.MetricBackend.LastTimingTags)
 	})
 
 	t.Run("should send cache invalid metric with err", func(t *testing.T) {
@@ -140,8 +140,8 @@ func TestDatadogClient(t *testing.T) {
 		metrics.CacheBypassed()
 
 		assert.Equal(t, float64(1), fake.MetricBackend.LastIncrRate)
-		assert.Equal(t, "tiny_url.cache.bypassed", fake.MetricBackend.LastIncrName)
-		assert.Equal(t, []string{"tiny_url", "env:test"}, fake.MetricBackend.LastIncrTags)
+		assert.Equal(t, "cache.bypassed", fake.MetricBackend.LastIncrName)
+		assert.Equal(t, []string{}, fake.MetricBackend.LastIncrTags)
 	})
 
 	t.Run("should send cache bypass metric with err", func(t *testing.T) {
@@ -161,8 +161,8 @@ func TestDatadogClient(t *testing.T) {
 
 		assert.Equal(t, float64(1), fake.MetricBackend.LastTimingRate)
 		assert.NotNil(t, fake.MetricBackend.LastTimingDuration)
-		assert.Equal(t, "tiny_url.db.query.duration", fake.MetricBackend.LastTimingName)
-		assert.Equal(t, []string{"tiny_url", "env:test", "query:" + query}, fake.MetricBackend.LastTimingTags)
+		assert.Equal(t, "db.query.latency", fake.MetricBackend.LastTimingName)
+		assert.Equal(t, []string{"query:" + query}, fake.MetricBackend.LastTimingTags)
 	})
 
 	t.Run("should send db query metric with err", func(t *testing.T) {
@@ -182,8 +182,8 @@ func TestDatadogClient(t *testing.T) {
 		metrics.DBError(query, err.Error())
 
 		assert.Equal(t, float64(1), fake.MetricBackend.LastIncrRate)
-		assert.Equal(t, "tiny_url.db.error", fake.MetricBackend.LastIncrName)
-		assert.Equal(t, []string{"tiny_url", "env:test", "query:" + query, "error:" + err.Error()}, fake.MetricBackend.LastIncrTags)
+		assert.Equal(t, "db.error", fake.MetricBackend.LastIncrName)
+		assert.Equal(t, []string{"query:" + query, "error:" + err.Error()}, fake.MetricBackend.LastIncrTags)
 	})
 
 	t.Run("should send db query error metric with err", func(t *testing.T) {

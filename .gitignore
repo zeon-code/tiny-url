@@ -24,8 +24,8 @@ profile.cov
 go.work
 go.work.sum
 
-# env file
-.env
+# datadog env file due to api key
+.envs/datadog.env
 
 # Editor/IDE
 # .idea/

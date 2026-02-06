@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/zeon-code/tiny-url/internal/http/handler"
@@ -26,5 +27,8 @@ func main() {
 	}
 
 	logger.Info("Starting server")
-	server.ListenAndServe()
+
+	if err := server.ListenAndServe(); err != nil {
+		logger.Error("Error starting server", slog.Any("error", err))
+	}
 }
