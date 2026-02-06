@@ -17,13 +17,9 @@ func TestDatadogClient(t *testing.T) {
 
 		metrics.HTTPRequest("GET", "/api/v1/url", 200, time.Since(time.Now()))
 
-		assert.Equal(t, float64(1), fake.MetricBackend.LastIncrRate)
-		assert.Equal(t, "http.request.count", fake.MetricBackend.LastIncrName)
-		assert.Equal(t, []string{"method:GET", "route:/api/v1/url", "status:200"}, fake.MetricBackend.LastIncrTags)
-
 		assert.Equal(t, float64(1), fake.MetricBackend.LastTimingRate)
 		assert.NotNil(t, fake.MetricBackend.LastTimingDuration)
-		assert.Equal(t, "http.request.latency", fake.MetricBackend.LastTimingName)
+		assert.Equal(t, "http.request", fake.MetricBackend.LastTimingName)
 		assert.Equal(t, []string{"method:GET", "route:/api/v1/url", "status:200"}, fake.MetricBackend.LastTimingTags)
 	})
 
@@ -39,11 +35,12 @@ func TestDatadogClient(t *testing.T) {
 		fake := test.NewFakeDependencies()
 		metrics := metric.NewDatadogClient(fake.MetricBackend, "test", fake.Logger())
 
-		metrics.CacheHit("key")
+		metrics.CacheHit("key", time.Since(time.Now()))
 
-		assert.Equal(t, float64(1), fake.MetricBackend.LastIncrRate)
-		assert.Equal(t, "cache.hit", fake.MetricBackend.LastIncrName)
-		assert.Equal(t, []string{"key:key"}, fake.MetricBackend.LastIncrTags)
+		assert.Equal(t, float64(1), fake.MetricBackend.LastTimingRate)
+		assert.NotNil(t, fake.MetricBackend.LastTimingDuration)
+		assert.Equal(t, "cache.hit", fake.MetricBackend.LastTimingName)
+		assert.Equal(t, []string{"key:key"}, fake.MetricBackend.LastTimingTags)
 	})
 
 	t.Run("should send cache hit metric with err", func(t *testing.T) {
@@ -51,18 +48,19 @@ func TestDatadogClient(t *testing.T) {
 		metrics := metric.NewDatadogClient(fake.MetricBackend, "test", fake.Logger())
 
 		fake.MetricBackend.Err = context.Canceled
-		metrics.CacheHit("key")
+		metrics.CacheHit("key", time.Since(time.Now()))
 	})
 
 	t.Run("should send cache miss metric", func(t *testing.T) {
 		fake := test.NewFakeDependencies()
 		metrics := metric.NewDatadogClient(fake.MetricBackend, "test", fake.Logger())
 
-		metrics.CacheMiss("key")
+		metrics.CacheMiss("key", time.Since(time.Now()))
 
-		assert.Equal(t, float64(1), fake.MetricBackend.LastIncrRate)
-		assert.Equal(t, "cache.miss", fake.MetricBackend.LastIncrName)
-		assert.Equal(t, []string{"key:key"}, fake.MetricBackend.LastIncrTags)
+		assert.Equal(t, float64(1), fake.MetricBackend.LastTimingRate)
+		assert.NotNil(t, fake.MetricBackend.LastTimingDuration)
+		assert.Equal(t, "cache.miss", fake.MetricBackend.LastTimingName)
+		assert.Equal(t, []string{"key:key"}, fake.MetricBackend.LastTimingTags)
 	})
 
 	t.Run("should send cache miss metric with err", func(t *testing.T) {
@@ -70,26 +68,7 @@ func TestDatadogClient(t *testing.T) {
 		metrics := metric.NewDatadogClient(fake.MetricBackend, "test", fake.Logger())
 
 		fake.MetricBackend.Err = context.Canceled
-		metrics.CacheMiss("key")
-	})
-
-	t.Run("should send cache invalid metric", func(t *testing.T) {
-		fake := test.NewFakeDependencies()
-		metrics := metric.NewDatadogClient(fake.MetricBackend, "test", fake.Logger())
-
-		metrics.CacheInvalid("key")
-
-		assert.Equal(t, float64(1), fake.MetricBackend.LastIncrRate)
-		assert.Equal(t, "cache.invalid", fake.MetricBackend.LastIncrName)
-		assert.Equal(t, []string{"key:key"}, fake.MetricBackend.LastIncrTags)
-	})
-
-	t.Run("should send cache invalid metric with err", func(t *testing.T) {
-		fake := test.NewFakeDependencies()
-		metrics := metric.NewDatadogClient(fake.MetricBackend, "test", fake.Logger())
-
-		fake.MetricBackend.Err = context.Canceled
-		metrics.CacheInvalid("key")
+		metrics.CacheMiss("key", time.Since(time.Now()))
 	})
 
 	t.Run("should send cache error metric", func(t *testing.T) {
@@ -113,34 +92,73 @@ func TestDatadogClient(t *testing.T) {
 		metrics.CacheError("key", err.Error())
 	})
 
-	t.Run("should send cache invalid metric", func(t *testing.T) {
+	t.Run("should send memory invalid metric", func(t *testing.T) {
 		fake := test.NewFakeDependencies()
 		metrics := metric.NewDatadogClient(fake.MetricBackend, "test", fake.Logger())
 
-		metrics.CacheLatency("key", time.Since(time.Now()))
+		metrics.MemoryInvalid("key")
 
-		assert.Equal(t, float64(1), fake.MetricBackend.LastTimingRate)
-		assert.NotNil(t, fake.MetricBackend.LastTimingDuration)
-		assert.Equal(t, "cache.latency", fake.MetricBackend.LastTimingName)
-		assert.Equal(t, []string{"key:key"}, fake.MetricBackend.LastTimingTags)
+		assert.Equal(t, float64(1), fake.MetricBackend.LastIncrRate)
+		assert.Equal(t, "memory.invalid", fake.MetricBackend.LastIncrName)
+		assert.Equal(t, []string{"key:key"}, fake.MetricBackend.LastIncrTags)
 	})
 
-	t.Run("should send cache invalid metric with err", func(t *testing.T) {
+	t.Run("should send memory invalid metric with err", func(t *testing.T) {
 		fake := test.NewFakeDependencies()
 		metrics := metric.NewDatadogClient(fake.MetricBackend, "test", fake.Logger())
 
 		fake.MetricBackend.Err = context.Canceled
-		metrics.CacheLatency("key", time.Since(time.Now()))
+		metrics.MemoryInvalid("key")
 	})
 
-	t.Run("should send cache bypass metric", func(t *testing.T) {
+	t.Run("should send memory hit metric", func(t *testing.T) {
 		fake := test.NewFakeDependencies()
 		metrics := metric.NewDatadogClient(fake.MetricBackend, "test", fake.Logger())
 
-		metrics.CacheBypassed()
+		metrics.MemoryHit("key", time.Since(time.Now()))
+
+		assert.Equal(t, float64(1), fake.MetricBackend.LastTimingRate)
+		assert.NotNil(t, fake.MetricBackend.LastTimingDuration)
+		assert.Equal(t, "memory.hit", fake.MetricBackend.LastTimingName)
+		assert.Equal(t, []string{"key:key"}, fake.MetricBackend.LastTimingTags)
+	})
+
+	t.Run("should send memory hit metric with err", func(t *testing.T) {
+		fake := test.NewFakeDependencies()
+		metrics := metric.NewDatadogClient(fake.MetricBackend, "test", fake.Logger())
+
+		fake.MetricBackend.Err = context.Canceled
+		metrics.MemoryHit("key", time.Since(time.Now()))
+	})
+
+	t.Run("should send memory miss metric", func(t *testing.T) {
+		fake := test.NewFakeDependencies()
+		metrics := metric.NewDatadogClient(fake.MetricBackend, "test", fake.Logger())
+
+		metrics.MemoryMiss("key", time.Since(time.Now()))
+
+		assert.Equal(t, float64(1), fake.MetricBackend.LastTimingRate)
+		assert.NotNil(t, fake.MetricBackend.LastTimingDuration)
+		assert.Equal(t, "memory.miss", fake.MetricBackend.LastTimingName)
+		assert.Equal(t, []string{"key:key"}, fake.MetricBackend.LastTimingTags)
+	})
+
+	t.Run("should send memory hit metric with err", func(t *testing.T) {
+		fake := test.NewFakeDependencies()
+		metrics := metric.NewDatadogClient(fake.MetricBackend, "test", fake.Logger())
+
+		fake.MetricBackend.Err = context.Canceled
+		metrics.MemoryMiss("key", time.Since(time.Now()))
+	})
+
+	t.Run("should send memory bypass metric", func(t *testing.T) {
+		fake := test.NewFakeDependencies()
+		metrics := metric.NewDatadogClient(fake.MetricBackend, "test", fake.Logger())
+
+		metrics.MemoryBypassed()
 
 		assert.Equal(t, float64(1), fake.MetricBackend.LastIncrRate)
-		assert.Equal(t, "cache.bypassed", fake.MetricBackend.LastIncrName)
+		assert.Equal(t, "memory.bypassed", fake.MetricBackend.LastIncrName)
 		assert.Equal(t, []string{}, fake.MetricBackend.LastIncrTags)
 	})
 
@@ -149,7 +167,7 @@ func TestDatadogClient(t *testing.T) {
 		metrics := metric.NewDatadogClient(fake.MetricBackend, "test", fake.Logger())
 
 		fake.MetricBackend.Err = context.Canceled
-		metrics.CacheBypassed()
+		metrics.MemoryBypassed()
 	})
 
 	t.Run("should send db query metric", func(t *testing.T) {
@@ -161,7 +179,7 @@ func TestDatadogClient(t *testing.T) {
 
 		assert.Equal(t, float64(1), fake.MetricBackend.LastTimingRate)
 		assert.NotNil(t, fake.MetricBackend.LastTimingDuration)
-		assert.Equal(t, "db.query.latency", fake.MetricBackend.LastTimingName)
+		assert.Equal(t, "db.query", fake.MetricBackend.LastTimingName)
 		assert.Equal(t, []string{"query:" + query}, fake.MetricBackend.LastTimingTags)
 	})
 

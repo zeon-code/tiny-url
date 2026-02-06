@@ -26,7 +26,7 @@ func TestMemoryClient(t *testing.T) {
 		err := fake.Memory().Get(context.Background(), &Row{}, query, 1)
 
 		assert.NoError(t, err)
-		assert.True(t, fake.MemoryMetric.LastCacheBypass)
+		assert.True(t, fake.MemoryMetric.LastMemoryBypass)
 	})
 
 	t.Run("get by default should bypass cache with policy", func(t *testing.T) {
@@ -46,7 +46,7 @@ func TestMemoryClient(t *testing.T) {
 		err := fake.Memory().Get(ctx, &Row{}, query, 1)
 
 		assert.NoError(t, err)
-		assert.True(t, fake.MemoryMetric.LastCacheBypass)
+		assert.True(t, fake.MemoryMetric.LastMemoryBypass)
 	})
 
 	t.Run("get should cache", func(t *testing.T) {
@@ -64,8 +64,8 @@ func TestMemoryClient(t *testing.T) {
 		err := fake.Memory().Get(ctx, &Row{}, "SELECT * FROM anything WHERE id = $1", 1)
 
 		assert.NoError(t, err)
-		assert.NotNil(t, fake.MemoryMetric.LastCacheLatency)
-		assert.Equal(t, "get-policy-key", fake.MemoryMetric.LastCacheKeyLatency)
+		assert.NotNil(t, fake.MemoryMetric.LastMemoryHitLatency)
+		assert.Equal(t, "get-policy-key", fake.MemoryMetric.LastMemoryHitKey)
 	})
 
 	t.Run("get should invalidate the cache when the value is invalid.", func(t *testing.T) {
@@ -86,7 +86,7 @@ func TestMemoryClient(t *testing.T) {
 		err := fake.Memory().Get(ctx, &Row{}, query, 1)
 
 		assert.NoError(t, err)
-		assert.True(t, fake.MemoryMetric.LastCacheInvalid)
+		assert.True(t, fake.MemoryMetric.LastMemoryInvalid)
 	})
 
 	t.Run("get should fetch from DB when cache does not exists", func(t *testing.T) {
@@ -108,8 +108,8 @@ func TestMemoryClient(t *testing.T) {
 		err := fake.Memory().Get(ctx, &Row{}, query, 1)
 
 		assert.NoError(t, err)
-		assert.NotNil(t, fake.MemoryMetric.LastCacheLatency)
-		assert.Equal(t, "select-policy-key", fake.MemoryMetric.LastCacheKeyLatency)
+		assert.NotNil(t, fake.MemoryMetric.LastMemoryMissLatency)
+		assert.Equal(t, "select-policy-key", fake.MemoryMetric.LastMemoryMissKey)
 	})
 
 	t.Run("select by default should bypass cache", func(t *testing.T) {
@@ -121,7 +121,7 @@ func TestMemoryClient(t *testing.T) {
 		err := fake.Memory().Select(context.Background(), &[]Row{}, query, 1)
 
 		assert.NoError(t, err)
-		assert.True(t, fake.MemoryMetric.LastCacheBypass)
+		assert.True(t, fake.MemoryMetric.LastMemoryBypass)
 	})
 
 	t.Run("select by default should bypass cache with policy", func(t *testing.T) {
@@ -141,7 +141,7 @@ func TestMemoryClient(t *testing.T) {
 		err := fake.Memory().Select(ctx, &[]Row{}, "SELECT * FROM anything WHERE id > $1", 1)
 
 		assert.NoError(t, err)
-		assert.True(t, fake.MemoryMetric.LastCacheBypass)
+		assert.True(t, fake.MemoryMetric.LastMemoryBypass)
 	})
 
 	t.Run("select should cache", func(t *testing.T) {
@@ -159,8 +159,8 @@ func TestMemoryClient(t *testing.T) {
 		err := fake.Memory().Select(ctx, &[]Row{}, "SELECT * FROM anything WHERE id > $1", 1)
 
 		assert.NoError(t, err)
-		assert.NotNil(t, fake.MemoryMetric.LastCacheLatency)
-		assert.Equal(t, "select-policy-key", fake.MemoryMetric.LastCacheKeyLatency)
+		assert.NotNil(t, fake.MemoryMetric.LastMemoryHitLatency)
+		assert.Equal(t, "select-policy-key", fake.MemoryMetric.LastMemoryHitKey)
 	})
 
 	t.Run("select should invalidate the cache when the value is invalid.", func(t *testing.T) {
@@ -181,7 +181,7 @@ func TestMemoryClient(t *testing.T) {
 		err := fake.Memory().Select(ctx, &[]Row{}, query, 1)
 
 		assert.NoError(t, err)
-		assert.True(t, fake.MemoryMetric.LastCacheInvalid)
+		assert.True(t, fake.MemoryMetric.LastMemoryInvalid)
 	})
 
 	t.Run("select should fetch from DB when cache does not exists", func(t *testing.T) {
@@ -203,7 +203,7 @@ func TestMemoryClient(t *testing.T) {
 		err := fake.Memory().Select(ctx, &[]Row{}, query, 1)
 
 		assert.NoError(t, err)
-		assert.NotNil(t, fake.MemoryMetric.LastCacheLatency)
-		assert.Equal(t, "select-policy-key", fake.MemoryMetric.LastCacheKeyLatency)
+		assert.NotNil(t, fake.MemoryMetric.LastMemoryMissLatency)
+		assert.Equal(t, "select-policy-key", fake.MemoryMetric.LastMemoryMissKey)
 	})
 }

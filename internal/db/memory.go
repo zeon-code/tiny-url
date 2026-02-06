@@ -70,17 +70,17 @@ func (c MemoryDatabaseClient) load(ctx context.Context, fetch dbFetch, value any
 	memory := cache.CacheFromContext(ctx)
 
 	if !memory.IsEnabled {
-		c.metric.CacheBypassed()
+		c.metric.MemoryBypassed()
 		return fetch(ctx, value, query, args...)
 	}
 
 	if data, err := c.cache.Get(ctx, memory.Policy.Key); err == nil {
 		if err := json.Unmarshal(data, value); err == nil {
-			c.metric.CacheLatency(memory.Policy.Key, time.Since(startAt))
+			c.metric.MemoryHit(memory.Policy.Key, time.Since(startAt))
 			return nil
 		}
 
-		c.metric.CacheInvalid(memory.Policy.Key)
+		c.metric.MemoryInvalid(memory.Policy.Key)
 		c.cache.Del(ctx, memory.Policy.Key)
 	}
 
@@ -92,6 +92,6 @@ func (c MemoryDatabaseClient) load(ctx context.Context, fetch dbFetch, value any
 		c.cache.Set(ctx, data, memory.Policy.Key, memory.Policy.TTL)
 	}
 
-	c.metric.CacheLatency(memory.Policy.Key, time.Since(startAt))
+	c.metric.MemoryMiss(memory.Policy.Key, time.Since(startAt))
 	return nil
 }

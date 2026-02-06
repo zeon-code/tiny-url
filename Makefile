@@ -21,15 +21,15 @@ run: build
 	@$(APP_BINARY_PATH)
 
 api-create-urls:
-	@echo "Usage example, make api-create-urls"
+	@echo "\nUsage example, make api-create-urls"
 	@curl -X POST "localhost:8080/api/v1/url/" --json '{"target":"https://google.com"}'
 
 api-get-by-id:
-	@echo "Usage example, make api-get-by-id id=1"
+	@echo "\nUsage example, make api-get-by-id id=1"
 	@curl "localhost:8080/api/v1/url/$(id)" -H "Content-Type: application/json"
 
 api-list-urls:
-	@echo "Usage example, make api-list-urls"
+	@echo "\nUsage example, make api-list-urls"
 	@curl "localhost:8080/api/v1/url/" -H "Content-Type: application/json"
 
 new-migration:

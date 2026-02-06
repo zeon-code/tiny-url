@@ -19,26 +19,31 @@ type MetricClient interface {
 
 	// CacheHit records a successful cache lookup where the
 	// requested value was found and used.
-	CacheHit(string)
+	CacheHit(string, time.Duration)
 
 	// CacheMiss records a cache lookup where no value was found
 	// and a fallback (e.g. database) was required.
-	CacheMiss(string)
-
-	// CacheInvalid records a cache entry that existed but could
-	// not be used (e.g. stale, malformed, or failed validation).
-	CacheInvalid(string)
+	CacheMiss(string, time.Duration)
 
 	// CacheErr records a cache operation that failed due to
 	// backend or connectivity errors.
 	CacheError(string, string)
 
-	// CacheLatency records the duration taken by cache operations such as reads,
-	// writes, deletions, or full read-through paths.
-	CacheLatency(string, time.Duration)
+	// MemoryHit records the duration to resolve a value when it is found in memory cache.
+	// The duration includes cache lookup and value deserialization, but excludes fallback logic.
+	MemoryHit(string, time.Duration)
+
+	// MemoryMiss records the duration to resolve a value when it is not found in memory cache.
+	// The duration includes cache lookup, fallback data fetch, value serialization,
+	// and cache population.
+	MemoryMiss(string, time.Duration)
+
+	// MemoryInvalid records a cache entry that existed but could
+	// not be used (e.g. stale, malformed, or failed validation).
+	MemoryInvalid(string)
 
 	// CacheBypassed records that cache logic was intentionally skipped.
-	CacheBypassed()
+	MemoryBypassed()
 
 	// DBQuery records the execution of a database query.
 	// It should include the logical query name and execution time.

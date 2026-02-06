@@ -6,14 +6,16 @@ import (
 
 type FakeMetric struct {
 	// Cache
-	LastCacheHit        bool
-	LastCacheMiss       bool
-	LastCacheInvalid    bool
-	LastCacheErr        string
-	LastCacheKeyErr     string
-	LastCacheLatency    time.Duration
-	LastCacheKeyLatency string
-	LastCacheBypass     bool
+	LastCacheHit          bool
+	LastCacheMiss         bool
+	LastMemoryInvalid     bool
+	LastCacheErr          string
+	LastCacheKeyErr       string
+	LastMemoryHitKey      string
+	LastMemoryHitLatency  time.Duration
+	LastMemoryMissKey     string
+	LastMemoryMissLatency time.Duration
+	LastMemoryBypass      bool
 
 	// Database
 	LastQuery      string
@@ -35,16 +37,12 @@ func (m *FakeMetric) HTTPRequest(method string, path string, statusCode int, dur
 	m.LastHTTPRequestDuration = duration
 }
 
-func (m *FakeMetric) CacheHit(string) {
+func (m *FakeMetric) CacheHit(string, time.Duration) {
 	m.LastCacheHit = true
 }
 
-func (m *FakeMetric) CacheMiss(string) {
+func (m *FakeMetric) CacheMiss(string, time.Duration) {
 	m.LastCacheMiss = true
-}
-
-func (m *FakeMetric) CacheInvalid(string) {
-	m.LastCacheInvalid = true
 }
 
 func (m *FakeMetric) CacheError(key string, err string) {
@@ -52,13 +50,22 @@ func (m *FakeMetric) CacheError(key string, err string) {
 	m.LastCacheErr = err
 }
 
-func (m *FakeMetric) CacheLatency(key string, duration time.Duration) {
-	m.LastCacheKeyLatency = key
-	m.LastCacheLatency = duration
+func (m *FakeMetric) MemoryHit(key string, duration time.Duration) {
+	m.LastMemoryHitKey = key
+	m.LastMemoryHitLatency = duration
 }
 
-func (m *FakeMetric) CacheBypassed() {
-	m.LastCacheBypass = true
+func (m *FakeMetric) MemoryMiss(key string, duration time.Duration) {
+	m.LastMemoryMissKey = key
+	m.LastMemoryMissLatency = duration
+}
+
+func (m *FakeMetric) MemoryInvalid(string) {
+	m.LastMemoryInvalid = true
+}
+
+func (m *FakeMetric) MemoryBypassed() {
+	m.LastMemoryBypass = true
 }
 
 func (m *FakeMetric) DBQuery(q string, d time.Duration) {

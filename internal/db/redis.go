@@ -53,17 +53,18 @@ func NewRedisClient(b RedisBackend, m metric.MetricClient, l *slog.Logger) *Redi
 //
 // Returns a mapped cache error for consistent error handling.
 func (p RedisClient) Get(ctx context.Context, key string) ([]byte, error) {
+	now := time.Now()
 	data, err := p.backend.Get(ctx, key).Bytes()
 
 	if err == redis.Nil {
-		p.metric.CacheMiss(key)
+		p.metric.CacheMiss(key, time.Since(now))
 		return []byte{}, mapCacheError(err)
 	} else if err != nil {
 		p.metric.CacheError(key, "failed to read redis key: "+err.Error())
 		return []byte{}, mapCacheError(err)
 	}
 
-	p.metric.CacheHit(key)
+	p.metric.CacheHit(key, time.Since(now))
 	return data, nil
 }
 

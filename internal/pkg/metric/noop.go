@@ -10,12 +10,13 @@ import (
 type NoopClient struct{}
 
 func (NoopClient) HTTPRequest(string, string, int, time.Duration) {}
-func (NoopClient) CacheHit(string)                                {}
-func (NoopClient) CacheMiss(string)                               {}
-func (NoopClient) CacheInvalid(string)                            {}
+func (NoopClient) CacheHit(string, time.Duration)                 {}
+func (NoopClient) CacheMiss(string, time.Duration)                {}
 func (NoopClient) CacheError(string, string)                      {}
-func (NoopClient) CacheLatency(string, time.Duration)             {}
-func (NoopClient) CacheBypassed()                                 {}
+func (NoopClient) MemoryHit(string, time.Duration)                {}
+func (NoopClient) MemoryMiss(string, time.Duration)               {}
+func (NoopClient) MemoryInvalid(string)                           {}
+func (NoopClient) MemoryBypassed()                                {}
 func (NoopClient) DBQuery(string, time.Duration)                  {}
 func (NoopClient) DBError(string, string)                         {}
 
