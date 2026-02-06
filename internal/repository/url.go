@@ -37,12 +37,11 @@ func (s URLStore) Create(ctx context.Context, target string) (*model.URL, error)
 		return nil, err
 	}
 
-	defer tx.Rollback()
-
 	var url model.URL
 	query := "INSERT INTO urls (target, code) VALUES ($1, '') RETURNING id, target, code, created_at, updated_at"
 
 	if err := tx.Get(ctx, &url, query, target); err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 
@@ -50,10 +49,12 @@ func (s URLStore) Create(ctx context.Context, target string) (*model.URL, error)
 	url.Code = base62.Encode(url.ID)
 
 	if err := tx.Exec(ctx, query, url.Code, url.ID); err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 
 	if err := tx.Commit(); err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 
