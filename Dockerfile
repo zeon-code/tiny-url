@@ -1,5 +1,8 @@
 FROM golang:1.24-alpine AS builder
 
+ARG APP_VERSION=0.0.1
+
+RUN echo "--- Debug: Building app version $APP_VERSION ---"
 RUN apk add --no-cache ca-certificates git
 
 WORKDIR /app
@@ -11,20 +14,17 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build -trimpath \
-    -ldflags="-s -w -X main.version=${VERSION:-0.0.1}" \
+    -ldflags="-s -w -X main.version=${APP_VERSION:-0.0.1}" \
     -o app cmd/api/main.go
 
-
-FROM debian:bookworm-slim
-
-RUN apt-get update \
- && apt-get install -y curl \
- && rm -rf /var/lib/apt/lists/*
+FROM gcr.io/distroless/base-debian12
 
 WORKDIR /app
 
 COPY --from=builder /app/app /app/app
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+USER nonroot:nonroot
 
 EXPOSE 8080
 

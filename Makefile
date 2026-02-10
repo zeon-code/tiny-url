@@ -2,7 +2,7 @@
 include .envs/local.env
 
 export $(shell sed 's/=.*//' .envs/local.env)
-APP_VERSION ?= $(shell git describe --abbrev=0 --tags 2>/dev/null || echo 0.0.1)
+APP_VERSION ?= $(shell git describe --abbrev=0 --tags 2>/dev/null || echo v0.0.1)
 
 # App
 export APP_BINARY_PATH ?= /tmp/tiny-url
