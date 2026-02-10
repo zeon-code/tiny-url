@@ -12,9 +12,9 @@ import (
 )
 
 type PostgresBackend interface {
-	SelectContext(ctx context.Context, value any, query string, args ...any) error
-	GetContext(ctx context.Context, value any, query string, args ...any) error
-	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
+	SelectContext(context.Context, any, string, ...any) error
+	GetContext(context.Context, any, string, ...any) error
+	ExecContext(context.Context, string, ...any) (sql.Result, error)
 }
 
 type PostgresTxBackend interface {
@@ -28,7 +28,7 @@ type PostgresClientBackend interface {
 	PostgresBackend
 
 	Close() error
-	BeginTxx(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error)
+	BeginTxx(context.Context, *sql.TxOptions) (*sqlx.Tx, error)
 }
 
 // PostgresProxy provides a thin abstraction over sqlx.DB,
@@ -78,14 +78,14 @@ type PostgresClient struct {
 	isConnectionClosed bool
 }
 
-func NewPostgresClientFromConfig(c config.DatabaseConfiguration, observer observability.Observer) (SQLClient, error) {
-	dns, err := c.GetDNS()
+func NewPostgresClientFromConfig(conf config.DatabaseConfiguration, observer observability.Observer) (SQLClient, error) {
+	dns, err := conf.DSN()
 
 	if err != nil {
 		return nil, err
 	}
 
-	db, err := observability.NewInstrumentedDB(observer, c.GetDriver(), dns)
+	db, err := observability.NewInstrumentedDB(observer, conf.Driver(), dns)
 
 	if err != nil {
 		return nil, mapDBError(err)
@@ -94,10 +94,10 @@ func NewPostgresClientFromConfig(c config.DatabaseConfiguration, observer observ
 	return NewPostgresClient(sqlx.NewDb(db, "postgres"), observer), nil
 }
 
-func NewPostgresClient(b PostgresClientBackend, observer observability.Observer) *PostgresClient {
+func NewPostgresClient(backend PostgresClientBackend, observer observability.Observer) *PostgresClient {
 	return &PostgresClient{
 		PostgresProxy: PostgresProxy{
-			backend: b,
+			backend: backend,
 			logger:  observer.Logger().WithGroup("postgres-client"),
 		},
 	}

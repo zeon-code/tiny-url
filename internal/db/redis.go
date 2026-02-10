@@ -10,10 +10,10 @@ import (
 )
 
 type RedisBackend interface {
-	Get(ctx context.Context, key string) *redis.StringCmd
-	Del(ctx context.Context, keys ...string) *redis.IntCmd
-	Incr(ctx context.Context, key string) *redis.IntCmd
-	SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.BoolCmd
+	Get(context.Context, string) *redis.StringCmd
+	Del(context.Context, ...string) *redis.IntCmd
+	Incr(context.Context, string) *redis.IntCmd
+	SetNX(context.Context, string, interface{}, time.Duration) *redis.BoolCmd
 	Close() error
 }
 
@@ -27,8 +27,8 @@ type RedisClient struct {
 	logger  observability.Logger
 }
 
-func NewRedisClientFromConfig(c config.DatabaseConfiguration, observer observability.Observer) (*RedisClient, error) {
-	dns, err := c.GetDNS()
+func NewRedisClientFromConfig(conf config.DatabaseConfiguration, observer observability.Observer) (*RedisClient, error) {
+	dns, err := conf.DSN()
 
 	if err != nil {
 		return nil, err
@@ -43,8 +43,8 @@ func NewRedisClientFromConfig(c config.DatabaseConfiguration, observer observabi
 	return NewRedisClient(rdb, observer), err
 }
 
-func NewRedisClient(b RedisBackend, observer observability.Observer) *RedisClient {
-	return &RedisClient{backend: b, logger: observer.Logger().WithGroup("redis-client")}
+func NewRedisClient(backend RedisBackend, observer observability.Observer) *RedisClient {
+	return &RedisClient{backend: backend, logger: observer.Logger().WithGroup("redis-client")}
 }
 
 // Get retrieves the cached value associated with the given key.

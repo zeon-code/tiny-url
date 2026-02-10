@@ -8,8 +8,8 @@ import (
 )
 
 type DatabaseConfiguration interface {
-	GetDNS() (string, error)
-	GetDriver() string
+	DSN() (string, error)
+	Driver() string
 }
 
 type PostgresConfig struct {
@@ -22,42 +22,42 @@ func NewPostgresConfig(prefix string) PostgresConfig {
 	}
 }
 
-func (c PostgresConfig) GetDriver() string {
+func (c PostgresConfig) Driver() string {
 	return "postgres"
 }
 
-func (c PostgresConfig) GetDNS() (string, error) {
-	isTLSMode, err := c.DBTLSMode()
+func (c PostgresConfig) DSN() (string, error) {
+	isTLSMode, err := c.TLSMode()
 
 	if err != nil {
 		return "", err
 	}
 
-	user, err := c.DBUser()
+	user, err := c.User()
 
 	if err != nil {
 		return "", err
 	}
 
-	password, err := c.DBPassword()
+	password, err := c.Password()
 
 	if err != nil {
 		return "", err
 	}
 
-	host, err := c.DBHost()
+	host, err := c.Host()
 
 	if err != nil {
 		return "", err
 	}
 
-	port, err := c.DBPort()
+	port, err := c.Port()
 
 	if err != nil {
 		return "", err
 	}
 
-	name, err := c.DBName()
+	name, err := c.Name()
 
 	if err != nil {
 		return "", err
@@ -72,11 +72,11 @@ func (c PostgresConfig) GetDNS() (string, error) {
 	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s?%s", user, password, host, port, name, sslMode), nil
 }
 
-func (c PostgresConfig) DBHost() (string, error) {
+func (c PostgresConfig) Host() (string, error) {
 	return c.get("HOST")
 }
 
-func (c PostgresConfig) DBPort() (int, error) {
+func (c PostgresConfig) Port() (int, error) {
 	env, err := c.get("PORT")
 
 	if err != nil {
@@ -92,19 +92,19 @@ func (c PostgresConfig) DBPort() (int, error) {
 	return port, nil
 }
 
-func (c PostgresConfig) DBUser() (string, error) {
+func (c PostgresConfig) User() (string, error) {
 	return c.get("USER")
 }
 
-func (c PostgresConfig) DBPassword() (string, error) {
+func (c PostgresConfig) Password() (string, error) {
 	return c.get("PASSWORD")
 }
 
-func (c PostgresConfig) DBName() (string, error) {
+func (c PostgresConfig) Name() (string, error) {
 	return c.get("NAME")
 }
 
-func (c PostgresConfig) DBTLSMode() (bool, error) {
+func (c PostgresConfig) TLSMode() (bool, error) {
 	env, err := c.get("TLS_MODE")
 
 	if err != nil {

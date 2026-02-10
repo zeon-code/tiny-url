@@ -10,7 +10,7 @@ import (
 	"github.com/zeon-code/tiny-url/internal/pkg/observability"
 )
 
-type dbFetch func(ctx context.Context, value any, query string, args ...any) error
+type dbFetch func(context.Context, any, string, ...any) error
 
 // MemoryDatabaseClient decorates a SQLReader with a transparent,
 // best-effort cache layer.

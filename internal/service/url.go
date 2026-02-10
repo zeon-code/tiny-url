@@ -11,9 +11,9 @@ import (
 )
 
 type URLService interface {
-	Create(ctx context.Context, target string) (*model.URL, error)
-	List(ctx context.Context, limit int, direction string, cursor *int64) ([]model.URL, error)
-	GetByID(ctx context.Context, id int64) (*model.URL, error)
+	Create(context.Context, string) (*model.URL, error)
+	List(context.Context, int, string, *int64) ([]model.URL, error)
+	GetByID(context.Context, int64) (*model.URL, error)
 }
 
 type UrlSvc struct {

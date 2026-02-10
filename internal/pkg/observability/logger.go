@@ -11,13 +11,13 @@ import (
 )
 
 type Logger interface {
-	With(args ...any) Logger
-	WithGroup(name string) Logger
+	With(...any) Logger
+	WithGroup(string) Logger
 
-	Debug(ctx context.Context, msg string, args ...any)
-	Info(ctx context.Context, msg string, args ...any)
-	Warn(ctx context.Context, msg string, args ...any)
-	Error(ctx context.Context, msg string, args ...any)
+	Debug(context.Context, string, ...any)
+	Info(context.Context, string, ...any)
+	Warn(context.Context, string, ...any)
+	Error(context.Context, string, ...any)
 }
 
 func NewLogger(conf config.Log) Logger {

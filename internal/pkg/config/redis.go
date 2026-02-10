@@ -9,41 +9,41 @@ import (
 
 type RedisConfig struct{}
 
-func (c RedisConfig) GetDriver() string {
+func (c RedisConfig) Driver() string {
 	return "redis"
 }
 
-func (c RedisConfig) GetDNS() (string, error) {
-	host, err := c.DBHost()
+func (c RedisConfig) DSN() (string, error) {
+	host, err := c.Host()
 
 	if err != nil {
 		return "", err
 	}
 
-	port, err := c.DBPort()
+	port, err := c.Port()
 
 	if err != nil {
 		return "", err
 	}
 
-	name, err := c.DBName()
+	name, err := c.Name()
 
 	if err != nil {
 		return "", err
 	}
 
-	if password, err := c.DBPassword(); err == nil {
+	if password, err := c.Password(); err == nil {
 		return fmt.Sprintf("redis://:%s@%s:%d/%d", password, host, port, name), nil
 	}
 
 	return fmt.Sprintf("redis://%s:%d/%d", host, port, name), nil
 }
 
-func (c RedisConfig) DBHost() (string, error) {
+func (c RedisConfig) Host() (string, error) {
 	return c.get("CACHE_HOST")
 }
 
-func (c RedisConfig) DBPort() (int, error) {
+func (c RedisConfig) Port() (int, error) {
 	env, err := c.get("CACHE_PORT")
 
 	if err != nil {
@@ -59,11 +59,11 @@ func (c RedisConfig) DBPort() (int, error) {
 	return port, nil
 }
 
-func (c RedisConfig) DBPassword() (string, error) {
+func (c RedisConfig) Password() (string, error) {
 	return c.get("CACHE_PASSWORD")
 }
 
-func (c RedisConfig) DBName() (int, error) {
+func (c RedisConfig) Name() (int, error) {
 	env, err := c.get("CACHE_NAME")
 
 	if err != nil {
