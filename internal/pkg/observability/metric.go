@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 )
 
@@ -41,22 +40,22 @@ func NewMetricClient(meter metric.Meter) (*OtelMetricClient, error) {
 	var err error
 	client := &OtelMetricClient{}
 
-	client.memoryInvalidCount, err = meter.Int64Counter("memory.invalid.count")
+	client.memoryInvalidCount, err = meter.Int64Counter("tiny_url.memory.invalid.count")
 
 	if err != nil {
 		return nil, err
 	}
 
-	client.memoryBypassCount, err = meter.Int64Counter("memory.bypassed.count")
+	client.memoryBypassCount, err = meter.Int64Counter("tiny_url.memory.bypassed.count")
 
 	if err != nil {
 		return nil, err
 	}
 
 	client.memoryHitLatency, err = meter.Float64Histogram(
-		"memory.hit.latency",
-		metric.WithUnit("s"),
-		metric.WithDescription("Cache operation latency"),
+		"tiny_url.memory.hit.latency",
+		metric.WithUnit("ms"),
+		metric.WithDescription("Memory hit operation latency"),
 	)
 
 	if err != nil {
@@ -64,8 +63,9 @@ func NewMetricClient(meter metric.Meter) (*OtelMetricClient, error) {
 	}
 
 	client.memoryMissLatency, err = meter.Float64Histogram(
-		"memory.miss.latency",
-		metric.WithUnit("s"),
+		"tiny_url.memory.miss.latency",
+		metric.WithUnit("ms"),
+		metric.WithDescription("Memory miss operation latency"),
 	)
 
 	if err != nil {
@@ -78,20 +78,14 @@ func NewMetricClient(meter metric.Meter) (*OtelMetricClient, error) {
 func (m *OtelMetricClient) MemoryHit(ctx context.Context, name string, d time.Duration) {
 	m.memoryHitLatency.Record(
 		ctx,
-		d.Seconds(),
-		metric.WithAttributes(
-			attribute.String("cache.key", name),
-		),
+		float64(d.Milliseconds()),
 	)
 }
 
 func (m *OtelMetricClient) MemoryMiss(ctx context.Context, name string, d time.Duration) {
 	m.memoryMissLatency.Record(
 		ctx,
-		d.Seconds(),
-		metric.WithAttributes(
-			attribute.String("cache.key", name),
-		),
+		float64(d.Milliseconds()),
 	)
 }
 
@@ -99,9 +93,6 @@ func (m *OtelMetricClient) MemoryInvalid(ctx context.Context, name string) {
 	m.memoryInvalidCount.Add(
 		ctx,
 		1,
-		metric.WithAttributes(
-			attribute.String("cache.key", name),
-		),
 	)
 }
 

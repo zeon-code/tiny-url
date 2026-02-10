@@ -32,8 +32,8 @@ type SQLClient interface {
 	BeginTx(context.Context, *sql.TxOptions) (SQLTX, error)
 }
 
-func NewDBClient(c config.DatabaseConfiguration, observer observability.Observer) (SQLClient, error) {
-	return NewPostgresClientFromConfig(c, observer)
+func NewDBClient(conf config.DatabaseConfiguration, observer observability.Observer) (SQLClient, error) {
+	return NewPostgresClientFromConfig(conf, observer)
 }
 
 type CacheClient interface {
@@ -44,6 +44,6 @@ type CacheClient interface {
 	Close() error
 }
 
-func NewCacheClient(c config.DatabaseConfiguration, observer observability.Observer) (CacheClient, error) {
-	return NewRedisClientFromConfig(c, observer)
+func NewCacheClient(conf config.DatabaseConfiguration, observer observability.Observer) (CacheClient, error) {
+	return NewRedisClientFromConfig(conf, observer)
 }

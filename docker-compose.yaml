@@ -60,6 +60,7 @@ services:
     image: datadog/agent:7.55.1
     container_name: dd-agent
     ports:
+      - "4317:4317/tcp"
       - "4318:4318/tcp"
       - "8126:8126/tcp"
       - "8125:8125/udp"
@@ -69,10 +70,9 @@ services:
       - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
       - DD_PROCESS_AGENT_ENABLED=false
       # OLTP
-      - DD_OTLP_CONFIG_ENABLED=true
-      - DD_OTLP_CONFIG_METRICS_ENABLED=true
-      - DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_HTTP_ENDPOINT=0.0.0.0:4318
       - DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_GRPC_ENDPOINT=0.0.0.0:4317
+      - DD_OTLP_CONFIG_METRICS_ENABLED=true
+      - DD_OTLP_CONFIG_TRACES_ENABLED=true
       # DB Queries
       - DD_APM_COMPUTE_STATS_BY_SPAN_KIND=true 
       - DD_APM_PEER_TAGS_AGGREGATION=true
@@ -88,6 +88,8 @@ services:
       - .envs/datadog.env
 
   api:
+    profiles:
+      - app
     build:
       context: .
       dockerfile: Dockerfile

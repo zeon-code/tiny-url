@@ -8,8 +8,8 @@ import (
 
 	"github.com/zeon-code/tiny-url/internal/pkg/config"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/metric"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -64,15 +64,26 @@ func (o *observer) Startup(ctx context.Context) error {
 		return err
 	}
 
-	exportTracerOptions := []otlptracehttp.Option{
-		otlptracehttp.WithEndpoint(fmt.Sprintf("%s:%d", addr, port)),
+	exportTracerOptions := []otlptracegrpc.Option{
+		otlptracegrpc.WithEndpoint(fmt.Sprintf("%s:%d", addr, port)),
+	}
+
+	exportMetricOptions := []otlpmetricgrpc.Option{
+		otlpmetricgrpc.WithEndpoint(fmt.Sprintf("%s:%d", addr, port)),
 	}
 
 	if env == "local" {
-		exportTracerOptions = append(exportTracerOptions, otlptracehttp.WithInsecure())
+		exportTracerOptions = append(exportTracerOptions, otlptracegrpc.WithInsecure())
+		exportMetricOptions = append(exportMetricOptions, otlpmetricgrpc.WithInsecure())
 	}
 
-	tracerExporter, err := otlptracehttp.New(ctx, exportTracerOptions...)
+	tracerExporter, err := otlptracegrpc.New(ctx, exportTracerOptions...)
+
+	if err != nil {
+		return err
+	}
+
+	meterExporter, err := otlpmetricgrpc.New(ctx, exportMetricOptions...)
 
 	if err != nil {
 		return err
@@ -90,29 +101,6 @@ func (o *observer) Startup(ctx context.Context) error {
 		return err
 	}
 
-	o.tracer = trace.NewTracerProvider(
-		trace.WithBatcher(tracerExporter, trace.WithBatchTimeout(5*time.Second)),
-		trace.WithResource(tracerResource),
-	)
-
-	otel.SetTracerProvider(o.tracer)
-
-	exportMetricOptions := []otlpmetrichttp.Option{
-		otlpmetrichttp.WithEndpoint(fmt.Sprintf("%s:%d", addr, port)),
-	}
-
-	if env == "local" {
-		exportMetricOptions = append(exportMetricOptions, otlpmetrichttp.WithInsecure())
-	}
-
-	meterExporter, err := otlpmetrichttp.New(ctx, exportMetricOptions...)
-
-	if err != nil {
-		return err
-	}
-
-	meterReader := sdkmetric.NewPeriodicReader(meterExporter, sdkmetric.WithInterval(5*time.Second))
-
 	meterResource, err := resource.New(ctx,
 		resource.WithAttributes(
 			semconv.ServiceName(serviceName),
@@ -125,11 +113,22 @@ func (o *observer) Startup(ctx context.Context) error {
 		return err
 	}
 
+	o.tracer = trace.NewTracerProvider(
+		trace.WithBatcher(tracerExporter, trace.WithBatchTimeout(1*time.Second)),
+		trace.WithResource(tracerResource),
+	)
+
+	meterReader := sdkmetric.NewPeriodicReader(
+		meterExporter,
+		sdkmetric.WithInterval(1*time.Second),
+	)
+
 	o.metric = sdkmetric.NewMeterProvider(
 		sdkmetric.WithReader(meterReader),
 		sdkmetric.WithResource(meterResource),
 	)
 
+	otel.SetTracerProvider(o.tracer)
 	otel.SetMeterProvider(o.metric)
 	return nil
 }
