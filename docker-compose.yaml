@@ -136,7 +136,7 @@ services:
       - .envs/local.env
     environment:
       - CACHE_HOST=redis
-      - METRIC_HOST=dd-agent
+      - TELEMETRY_HOST=dd-agent
       - DB_HOST=pg-primary
       - DB_REPLICA_HOST=pg-replica
       - DB_REPLICA_PORT=5432
