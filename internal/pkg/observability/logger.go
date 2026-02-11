@@ -35,15 +35,15 @@ func NewLogger(conf config.Log) Logger {
 		level = slog.LevelInfo
 	}
 
-	return NewDatadogLogger(level)
+	return NewOtelLogger(level)
 }
 
-type DatadogLogger struct {
+type OtelLogger struct {
 	logger *slog.Logger
 }
 
-func NewDatadogLogger(level slog.Level) DatadogLogger {
-	return DatadogLogger{
+func NewOtelLogger(level slog.Level) OtelLogger {
+	return OtelLogger{
 		logger: slog.New(
 			slog.NewJSONHandler(
 				os.Stdout,
@@ -55,29 +55,29 @@ func NewDatadogLogger(level slog.Level) DatadogLogger {
 	}
 }
 
-func (l DatadogLogger) Debug(ctx context.Context, msg string, args ...any) {
+func (l OtelLogger) Debug(ctx context.Context, msg string, args ...any) {
 	l.withTrace(ctx).Debug(msg, args...)
 }
 
-func (l DatadogLogger) Info(ctx context.Context, msg string, args ...any) {
+func (l OtelLogger) Info(ctx context.Context, msg string, args ...any) {
 	l.withTrace(ctx).Info(msg, args...)
 }
 
-func (l DatadogLogger) Warn(ctx context.Context, msg string, args ...any) {
+func (l OtelLogger) Warn(ctx context.Context, msg string, args ...any) {
 	l.withTrace(ctx).Warn(msg, args...)
 }
 
-func (l DatadogLogger) Error(ctx context.Context, msg string, args ...any) {
+func (l OtelLogger) Error(ctx context.Context, msg string, args ...any) {
 	l.withTrace(ctx).Error(msg, args...)
 }
 
-func (l DatadogLogger) With(args ...any) Logger {
-	return DatadogLogger{
+func (l OtelLogger) With(args ...any) Logger {
+	return OtelLogger{
 		logger: l.logger.With(args...),
 	}
 }
 
-func (l DatadogLogger) withTrace(ctx context.Context) *slog.Logger {
+func (l OtelLogger) withTrace(ctx context.Context) *slog.Logger {
 	span := trace.SpanFromContext(ctx)
 	if !span.SpanContext().IsValid() {
 		return l.logger
