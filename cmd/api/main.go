@@ -27,10 +27,8 @@ func main() {
 	observer := observability.NewObserver(version, conf)
 
 	if err := observer.Startup(ctx); err != nil {
-		observer.Logger().Error(ctx, "Error initializing tracer", slog.Any("error", err))
+		observer.Logger().Error(ctx, "Error initializing observer", slog.Any("error", err))
 	}
-
-	defer observer.Shutdown(ctx)
 
 	repo := repository.NewRepositoriesFromConfig(conf, observer)
 	svc := service.NewServices(repo, observer)
@@ -54,19 +52,30 @@ func main() {
 
 	observer.Logger().Info(ctx, "Shutdown initiated")
 
+	hasShutdownErr := false
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	if err := server.Shutdown(ctx); err != nil {
+		hasShutdownErr = true
+		observer.Logger().Error(ctx, "error Failed to gracefully shut down server", slog.Any("error", err))
+	}
+
+	observer.Logger().Info(ctx, "Server shut down gracefully")
+
 	if err := repo.Shutdown(); err != nil {
-		observer.Logger().Error(ctx, "Error graceful shutdown repositories failed", slog.Any("error", err))
+		hasShutdownErr = true
+		observer.Logger().Error(ctx, "error Failed to gracefully shut down repositories", slog.Any("error", err))
 	}
 
 	observer.Logger().Info(ctx, "Repositories shut down gracefully")
 
-	if err := server.Shutdown(ctx); err != nil {
-		observer.Logger().Error(ctx, "Error graceful shutdown failed", slog.Any("error", err))
-		return
+	if err := observer.Shutdown(ctx); err != nil {
+		hasShutdownErr = true
+		observer.Logger().Error(ctx, "error failed to gracefully shut down observer", slog.Any("error", err))
 	}
 
-	observer.Logger().Info(ctx, "Server shut down gracefully")
+	if !hasShutdownErr {
+		observer.Logger().Info(ctx, "Observer shut down gracefully")
+	}
 }
