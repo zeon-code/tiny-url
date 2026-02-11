@@ -45,7 +45,7 @@ Clone the repo:
 git clone https://github.com/zeon-code/tiny-url.git
 ```
 
-### 🚀 Running the Service
+### Running the Service
 
 Navigate to the project directory:
 
@@ -60,7 +60,7 @@ make run
 ```
 The service will start on `http://localhost:8080`.
 
-### 🧪 Testing
+### Testing
 Run tests with:
 
 ```bash
@@ -68,3 +68,26 @@ make test
 ```
 
 This will execute all unit tests and display the results.
+
+### Migration
+Run migrations with:
+
+```bash
+make migrate
+```
+
+This will execute all migrations and display the results. In order to create a new migration, use the following command:
+
+```bash
+make new-migration name=add_users_table
+```
+
+This will create a new migration file in the `migrations` directory with the name `add_users_table`.
+
+### Live documentation (Swagger UI)
+
+Access the interactive API documentation at:
+
+```
+http://localhost
+```
