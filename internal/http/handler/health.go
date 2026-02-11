@@ -19,7 +19,7 @@ type HealthHandler struct {
 func NewHealthHandler(services service.Services, observer observability.Observer) HealthHandler {
 	return HealthHandler{
 		HealthSvc: services.Health,
-		logger:    observer.Logger().WithGroup("url-handler"),
+		logger:    observer.Logger().With("handler", "health"),
 	}
 }
 

@@ -56,7 +56,7 @@ func NewRedisClientFromConfig(conf config.DatabaseConfiguration, observer observ
 }
 
 func NewRedisClient(backend RedisBackend, observer observability.Observer) *RedisClient {
-	return &RedisClient{backend: backend, logger: observer.Logger().WithGroup("redis-client")}
+	return &RedisClient{backend: backend, logger: observer.Logger().With("client", "redis")}
 }
 
 // Get retrieves the cached value associated with the given key.

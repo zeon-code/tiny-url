@@ -99,7 +99,7 @@ func NewPostgresClient(backend PostgresClientBackend, observer observability.Obs
 	return &PostgresClient{
 		PostgresProxy: PostgresProxy{
 			backend: backend,
-			logger:  observer.Logger().WithGroup("postgres-client"),
+			logger:  observer.Logger().With("client", "postgres"),
 		},
 	}
 }
@@ -162,7 +162,7 @@ func newPostgresTx(tx PostgresTxBackend, logger observability.Logger) SQLTX {
 	return &PostgresTX{
 		PostgresProxy: PostgresProxy{
 			backend: tx,
-			logger:  logger.WithGroup("postgres-tx-client"),
+			logger:  logger.With("client", "postgres-tx-client"),
 		},
 	}
 }

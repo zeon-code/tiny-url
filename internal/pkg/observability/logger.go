@@ -12,7 +12,6 @@ import (
 
 type Logger interface {
 	With(...any) Logger
-	WithGroup(string) Logger
 
 	Debug(context.Context, string, ...any)
 	Info(context.Context, string, ...any)
@@ -75,12 +74,6 @@ func (l DatadogLogger) Error(ctx context.Context, msg string, args ...any) {
 func (l DatadogLogger) With(args ...any) Logger {
 	return DatadogLogger{
 		logger: l.logger.With(args...),
-	}
-}
-
-func (l DatadogLogger) WithGroup(name string) Logger {
-	return DatadogLogger{
-		logger: l.logger.WithGroup(name),
 	}
 }
 

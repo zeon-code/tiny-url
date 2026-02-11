@@ -15,12 +15,14 @@ type HealthRepository interface {
 type HealthStore struct {
 	primary db.SQLClient
 	memory  db.SQLReader
+	logger  observability.Logger
 }
 
 func NewHealthRepository(primary db.SQLClient, memory db.SQLReader, observer observability.Observer) HealthRepository {
 	return HealthStore{
 		primary: primary,
 		memory:  memory,
+		logger:  observer.Logger().With("repository", "health"),
 	}
 }
 

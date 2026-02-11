@@ -24,7 +24,7 @@ type UrlHandler struct {
 func NewUrlHandler(services service.Services, observer observability.Observer) UrlHandler {
 	return UrlHandler{
 		UrlSvc: services.Url,
-		logger: observer.Logger().WithGroup("url-handler"),
+		logger: observer.Logger().With("handler", "url"),
 	}
 }
 

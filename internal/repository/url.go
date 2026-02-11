@@ -26,7 +26,7 @@ func NewURLRepository(database db.SQLClient, memory db.SQLReader, observer obser
 	return URLStore{
 		db:     database,
 		memory: memory,
-		logger: observer.Logger().WithGroup("url-repository"),
+		logger: observer.Logger().With("repository", "url"),
 	}
 }
 

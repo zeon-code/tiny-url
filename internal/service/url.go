@@ -28,7 +28,7 @@ func NewUrlService(repositories repository.Repositories, observer observability.
 	return UrlSvc{
 		repo:     repositories.Url,
 		cacheKey: cache.NewCacheKey("url", "service"),
-		logger:   observer.Logger().WithGroup("url-service"),
+		logger:   observer.Logger().With("service", "url"),
 	}
 }
 

@@ -40,7 +40,7 @@ func NewMemoryDatabase(db SQLClient, cache CacheClient, observer observability.O
 		db:     db,
 		cache:  cache,
 		metric: metrics,
-		logger: observer.Logger().WithGroup("memory-client"),
+		logger: observer.Logger().With("client", "memory"),
 	}, nil
 }
 
