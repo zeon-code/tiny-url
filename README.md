@@ -44,3 +44,27 @@ Clone the repo:
 ```bash
 git clone https://github.com/zeon-code/tiny-url.git
 ```
+
+### 🚀 Running the Service
+
+Navigate to the project directory:
+
+```bash
+cd tiny-url
+```
+
+Run the service:
+
+```bash
+make run
+```
+The service will start on `http://localhost:8080`.
+
+### 🧪 Testing
+Run tests with:
+
+```bash
+make test
+```
+
+This will execute all unit tests and display the results.

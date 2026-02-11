@@ -97,7 +97,7 @@ func (h UrlHandler) List(w http.ResponseWriter, r *http.Request) {
 	limit := 50
 	ctx := r.Context()
 
-	if r.Header.Get("Content-Type") != "application/json" {
+	if r.Header.Get("Accept") != "application/json" {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
@@ -127,7 +127,7 @@ func (h UrlHandler) List(w http.ResponseWriter, r *http.Request) {
 func (h UrlHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	if r.Header.Get("Content-Type") != "application/json" {
+	if r.Header.Get("Accept") != "application/json" {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}

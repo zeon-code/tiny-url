@@ -1,16 +1,27 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
-    <title>API Reference Playground</title>
+    <title>Swagger API Reference</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://unpkg.com" />
   </head>
   <body>
-    <script
-      id="api-reference"
-      data-url="./openapi.spec.yaml">
-    </script>
+    <div id="swagger-ui"></div>
+    <script src="https://unpkg.com"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+    <script>
+      window.onload = () => {
+        window.ui = SwaggerUIBundle({
+          url: './openapi.spec.yaml',
+          dom_id: '#swagger-ui',
+          deepLinking: true,
+          presets: [
+            SwaggerUIBundle.presets.apis
+          ],
+          layout: "BaseLayout"
+        });
+      };
+    </script>
   </body>
 </html>

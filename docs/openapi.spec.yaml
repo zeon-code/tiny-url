@@ -4,6 +4,10 @@ info:
   description: An API to manage shortened URLs.
   version: 0.0.1
 
+servers:
+  - url: http://localhost:80
+    description: Local development server
+
 paths:
   /r/{code}:
     get:
