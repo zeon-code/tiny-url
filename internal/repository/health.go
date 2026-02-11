@@ -32,7 +32,7 @@ func (r HealthStore) Ping(ctx context.Context) (string, error) {
 	}
 
 	if err := r.memory.Ping(ctx); err != nil {
-		return "memory_unavailable", errors.New("error dependency not ready")
+		return "db_replica_unavailable", errors.New("error dependency not ready")
 	}
 
 	return "", nil
