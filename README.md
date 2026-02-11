@@ -26,7 +26,7 @@ Designed with **simplicity, scalability, and extensibility** in mind.
 ## 🧠 Architecture
 
 This project uses a simple layered architecture that balances readability with performance.  
-For more details, see the [doc/architecture](doc/architecture.md) documentation.
+For more details, see the [docs/architecture](doc/architecture.md) documentation.
 
 ---
 
