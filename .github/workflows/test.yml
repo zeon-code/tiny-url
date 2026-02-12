@@ -1,4 +1,4 @@
-name: CI
+name: Build and test server
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
 
-  test:
+  test-and-build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -18,9 +18,9 @@ jobs:
       with:
         go-version: '1.22'
 
-    - name: Test
-      run: make test
-
     - name: build
       run: make build
+
+    - name: Test
+      run: make test
   
