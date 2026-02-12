@@ -1,4 +1,4 @@
-# Tiny URL [![Build and test server](https://github.com/zeon-code/tiny-url/actions/workflows/test.yml/badge.svg)](https://github.com/zeon-code/tiny-url/actions/workflows/test.yml)[![CodeQL](https://github.com/zeon-code/tiny-url/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/zeon-code/tiny-url/actions/workflows/github-code-scanning/codeql)
+# Tiny URL [![Build and test server](https://github.com/zeon-code/tiny-url/actions/workflows/test.yml/badge.svg)](https://github.com/zeon-code/tiny-url/actions/workflows/test.yml) [![CodeQL](https://github.com/zeon-code/tiny-url/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/zeon-code/tiny-url/actions/workflows/github-code-scanning/codeql)
 
 A high‑performance, lightweight URL shortening service written in **Go**.  
 Designed with **simplicity, scalability, and extensibility** in mind.
