@@ -1,4 +1,4 @@
-name: Build and test server
+name: Build and Test Server
 
 on:
   push:
