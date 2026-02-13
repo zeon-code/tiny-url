@@ -2,10 +2,10 @@ package handler
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"time"
 
+	json "github.com/json-iterator/go"
 	"github.com/zeon-code/tiny-url/internal/model"
 	"github.com/zeon-code/tiny-url/internal/pkg/observability"
 	"github.com/zeon-code/tiny-url/internal/service"

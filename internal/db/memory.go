@@ -2,11 +2,11 @@ package db
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"log/slog"
 	"time"
 
+	json "github.com/json-iterator/go"
 	"github.com/zeon-code/tiny-url/internal/pkg/cache"
 	"github.com/zeon-code/tiny-url/internal/pkg/observability"
 )

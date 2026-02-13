@@ -1,13 +1,13 @@
 package handler
 
 import (
-	"encoding/json"
 	"errors"
 	"io"
 	"log/slog"
 	"net/http"
 	"strconv"
 
+	json "github.com/json-iterator/go"
 	"github.com/zeon-code/tiny-url/internal/db"
 	"github.com/zeon-code/tiny-url/internal/model"
 	"github.com/zeon-code/tiny-url/internal/pkg/cache"

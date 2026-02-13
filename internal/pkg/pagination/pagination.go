@@ -2,10 +2,10 @@ package pagination
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"net/http"
 
+	json "github.com/json-iterator/go"
 	"github.com/zeon-code/tiny-url/internal/pkg/base62"
 )
 
